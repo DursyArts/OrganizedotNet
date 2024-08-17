@@ -34,6 +34,8 @@ namespace OrganizedotNet {
             tabControl1 = new TabControl();
             tabPage1 = new TabPage();
             splitContainer1 = new SplitContainer();
+            btn_find = new Button();
+            tb_search = new TextBox();
             lb_notes = new ListBox();
             btn_delete = new Button();
             btn_replace = new Button();
@@ -135,6 +137,8 @@ namespace OrganizedotNet {
             // 
             // splitContainer1.Panel1
             // 
+            splitContainer1.Panel1.Controls.Add(btn_find);
+            splitContainer1.Panel1.Controls.Add(tb_search);
             splitContainer1.Panel1.Controls.Add(lb_notes);
             // 
             // splitContainer1.Panel2
@@ -147,14 +151,33 @@ namespace OrganizedotNet {
             splitContainer1.SplitterDistance = 218;
             splitContainer1.TabIndex = 0;
             // 
+            // btn_find
+            // 
+            btn_find.BackgroundImageLayout = ImageLayout.Zoom;
+            btn_find.Location = new Point(163, 412);
+            btn_find.Name = "btn_find";
+            btn_find.Size = new Size(52, 23);
+            btn_find.TabIndex = 2;
+            btn_find.Text = "find";
+            btn_find.UseVisualStyleBackColor = true;
+            btn_find.Click += btn_find_Click;
+            // 
+            // tb_search
+            // 
+            tb_search.Location = new Point(3, 412);
+            tb_search.Name = "tb_search";
+            tb_search.PlaceholderText = "Search Note";
+            tb_search.Size = new Size(154, 23);
+            tb_search.TabIndex = 1;
+            // 
             // lb_notes
             // 
-            lb_notes.Dock = DockStyle.Fill;
             lb_notes.FormattingEnabled = true;
             lb_notes.ItemHeight = 15;
             lb_notes.Location = new Point(0, 0);
+            lb_notes.MultiColumn = true;
             lb_notes.Name = "lb_notes";
-            lb_notes.Size = new Size(218, 438);
+            lb_notes.Size = new Size(218, 409);
             lb_notes.TabIndex = 0;
             lb_notes.SelectedIndexChanged += lb_notes_SelectedIndexChanged;
             // 
@@ -277,6 +300,7 @@ namespace OrganizedotNet {
             tabControl1.ResumeLayout(false);
             tabPage1.ResumeLayout(false);
             splitContainer1.Panel1.ResumeLayout(false);
+            splitContainer1.Panel1.PerformLayout();
             splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize) splitContainer1).EndInit();
             splitContainer1.ResumeLayout(false);
@@ -308,5 +332,7 @@ namespace OrganizedotNet {
         private ToolStripStatusLabel lbl_status;
         private ToolStripButton btn_saveNotes;
         private ToolStripButton btn_open;
+        private Button btn_find;
+        private TextBox tb_search;
     }
 }

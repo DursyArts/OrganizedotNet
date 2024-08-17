@@ -1,12 +1,19 @@
 using System.Drawing.Text;
 using System.Text.Json;
 
+// Todo: replace the listbox with smth else that can display the ID and the Header at the same time.
+//       Prevent empty notes from being created
+//       Add Metadata: Time created
+//       Implement saving and Loading to SQLite table instead of JSON
+//       Program Settings (save path, load path), Save and Load program settings on exit/start
+
 namespace OrganizedotNet {
     public partial class Main : Form {
         // public vars
         public List<Note> notes = new List<Note>();
         public int selectedNoteId;
         public string serializedNotes;
+        public string filenameJson = "notes.json";
 
         private BindingSource notesBindingSource = new BindingSource(); // Add a BindingSource
 
@@ -27,6 +34,7 @@ namespace OrganizedotNet {
             notes.Add(new Note() { NoteHeader = tb_NoteHeader.Text, NoteID = notes.Count, NoteText = rtb_noteText.Text });
 
             notesBindingSource.ResetBindings(false);
+            ChangeStatusLabel($"Created Note \"{notes[notes.Count - 1].NoteHeader}\".");
 
             tb_NoteHeader.Clear();
             rtb_noteText.Clear();
@@ -65,23 +73,75 @@ namespace OrganizedotNet {
             // serialize the notes List as json and save that
             serializedNotes = JsonSerializer.Serialize<List<Note>>(notes, new JsonSerializerOptions() { WriteIndented = true });
 
-            File.WriteAllText("notes.json", serializedNotes);
+            File.WriteAllText(filenameJson, serializedNotes);
         }
 
         private void btn_open_Click(object sender, EventArgs e) {
-            // read the json file
-            serializedNotes = File.ReadAllText("notes.json");
+            LoadNotes();
+        }
 
+        public void ChangeStatusLabel(string newStatus) {
+            lbl_status.Text = newStatus;
+        }
+
+        public void AddToStatusLabel(string newStatus) {
+            string _tmp = lbl_status.Text ?? "";
+            lbl_status.Text = _tmp + "," + newStatus;
+        }
+
+        public bool LoadNotesFile() {
+            // read the json file
+            try {
+                serializedNotes = File.ReadAllText(filenameJson);
+            } catch(FileNotFoundException ex) {
+                ChangeStatusLabel($"The file {filenameJson} was not found.");
+                return false;
+            } catch(Exception ex) {
+                ChangeStatusLabel($"General error while loading occurred.");
+                return false;
+            }
+
+            return true;
+        }
+
+        public void ParseNotesFile() {
             // deserialize from Json and create notes
             try {
                 foreach(Note _note in JsonSerializer.Deserialize<List<Note>>(serializedNotes, new JsonSerializerOptions() { WriteIndented = true })) { // any clue how to fix the green lines here?
                     notes.Add(_note);
                 }
+            } catch(JsonException ex) {
+                ChangeStatusLabel("Error while parsing json file. Json might be malformed.");
             } catch(Exception ex) {
-                lbl_status.Text = ex.Message;
+                ChangeStatusLabel("General error while parsing json file occurred.");
             }
 
             notesBindingSource.ResetBindings(false);
+        }
+
+        public void LoadNotes() {
+            bool LoadFile = LoadNotesFile();
+
+            if(LoadFile) {
+                ParseNotesFile();
+            }
+        }
+
+        private void btn_find_Click(object sender, EventArgs e) {
+            string searchString = tb_search.Text;
+            Note test = new Note();
+
+            try {
+                test = notes.Find(x => x.NoteHeader.Contains(searchString));
+            } catch(Exception ex) {
+                ChangeStatusLabel($"Error while searching.");
+            }
+
+            if(test != null) {
+                ChangeStatusLabel($"Note found at ID: {test.NoteID}");
+            } else {
+                ChangeStatusLabel($"Couldnt find a Note with specified Header \"{searchString}\"");
+            }
 
         }
     }
